@@ -10,22 +10,48 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup
+    # Étape 1: Télécharger le code
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+      
+    # Étape 2: Installer Node.js
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    # Étape 3: Installer Java (nécessaire pour Android)
+    - name: ☕ Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        
+    # Étape 4: Installer Capacitor
+    - name: 📦 Install Capacitor
       run: |
-        npm install -g @capacitor/cli
-        npx cap init --web-dir . --app-id com.monapp.android --app-name "Mon App"
+        npm install -g @capacitor/cli @capacitor/core
+        
+    # Étape 5: Initialiser le projet Android
+    - name: 🤖 Setup Android Project
+      run: |
+        npx cap init --web-dir . --app-id com.monapp.android --app-name "Mon App" --npm-client npm
         npx cap add android
         
-    - name: Build APK
+    # Étape 6: Build APK
+    - name: 🏗️ Build Android APK
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --no-daemon
         
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
+    # Étape 7: Upload APK (VERSION CORRIGÉE)
+    - name: 📤 Upload APK File
+      uses: actions/upload-artifact@v4
       with:
-        name: app-apk
-        path: android/app/build/outputs/apk/debug/app-debug.apk
+        name: app-android-debug
+        path: android/app/build/outputs/apk/debug/
+        
+    # Étape 8: Message de succès
+    - name: ✅ Build Successful
+      run: echo "🎉 APK créé avec succès! Télécharge-le dans l'onglet Artifacts."
