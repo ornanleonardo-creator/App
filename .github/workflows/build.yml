@@ -20,38 +20,54 @@ jobs:
       with:
         node-version: '18'
         
-    # Étape 3: Installer Java (nécessaire pour Android)
+    # Étape 3: Installer Java
     - name: ☕ Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
         
-    # Étape 4: Installer Capacitor
-    - name: 📦 Install Capacitor
+    # Étape 4: Créer package.json si manquant
+    - name: 📄 Create package.json
       run: |
-        npm install -g @capacitor/cli @capacitor/core
+        if [ ! -f package.json ]; then
+          echo '{
+            "name": "mon-app-android",
+            "version": "1.0.0",
+            "description": "Mon application Android"
+          }' > package.json
+        fi
         
-    # Étape 5: Initialiser le projet Android
-    - name: 🤖 Setup Android Project
+    # Étape 5: Initialiser Capacitor (SIMPLIFIÉE)
+    - name: 🤖 Initialize Capacitor
       run: |
-        npx cap init --web-dir . --app-id com.monapp.android --app-name "Mon App" --npm-client npm
+        npm install @capacitor/core @capacitor/cli
+        npx cap init "Mon App" "com.monapp.android"
+        
+    # Étape 6: Ajouter Android
+    - name: 📱 Add Android Platform
+      run: |
         npx cap add android
         
-    # Étape 6: Build APK
-    - name: 🏗️ Build Android APK
+    # Étape 7: Copier les fichiers web
+    - name: 🔄 Copy Web Files
+      run: |
+        npx cap copy
+        
+    # Étape 8: Build APK
+    - name: 🏗️ Build APK
       run: |
         cd android
         chmod +x gradlew
-        ./gradlew assembleDebug --no-daemon
+        ./gradlew assembleDebug
         
-    # Étape 7: Upload APK (VERSION CORRIGÉE)
-    - name: 📤 Upload APK File
+    # Étape 9: Upload APK
+    - name: 📤 Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-android-debug
+        name: android-app-debug
         path: android/app/build/outputs/apk/debug/
         
-    # Étape 8: Message de succès
-    - name: ✅ Build Successful
-      run: echo "🎉 APK créé avec succès! Télécharge-le dans l'onglet Artifacts."
+    # Étape 10: Message
+    - name: ✅ Success
+      run: echo "🎉 APK créé! Télécharge-le dans Artifacts."
