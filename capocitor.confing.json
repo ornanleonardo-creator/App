@@ -1,0 +1,6 @@
+{
+  "appId": "com.monapp.android",
+  "appName": "Mon App Android",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
